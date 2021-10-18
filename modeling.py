@@ -72,8 +72,6 @@ class TopicModeling:
     def __init__(self):
         self.__model = addons.topic.BERTopicEngine()
 
-        self.settings = addons.topic.ModelSettings()
-
         self.morph = addons.morph.PyMorphyEngine()
         self.neural = addons.neural.FastTextLang('lid.176.bin')
         self.preprocess = addons.preprocess.Preprocess()
@@ -138,10 +136,12 @@ class TopicModeling:
 
         if not load_model:
             if preprocess:
-                docs = self.preprocess_docs(docs)
+                lang = self.neural.get_lang(docs[0])
+                stopwords = self.stopwords[lang]
+            else:
+                stopwords = None
 
-            self.__model.create_vectorizer(self.settings)
-            self.__model.create_model(self.settings)
+            self.__model.create_model()
 
             result = self.__model.fit_model(docs, model_path)
 
@@ -173,7 +173,10 @@ class TopicModeling:
 
                 csv_writer.writerow([topic, best, text, prob, len(text)])
 
-    def create_csv_topics(self, file: str, filter_type: str = 'none', filter_list: list = []):
+    def create_csv_topics(self, file: str, filter_type: str = 'none', filter_list: list = None):
+        if filter_list is None:
+            filter_list = []
+
         folder_check(file)
 
         with open(file, 'w', encoding='utf-8', newline='') as topics_file:
@@ -207,7 +210,10 @@ class TopicModeling:
                     if self.word_filter(pos_tags, filter_type, filter_list):
                         csv_writer.writerow([topic, phrase, mentions, pos_tags])
 
-    def create_csv_topics_simple_v(self, file: str, filter_type: str = 'none', filter_list: list = []):
+    def create_csv_topics_simple_v(self, file: str, filter_type: str = 'none', filter_list: list = None):
+        if filter_list is None:
+            filter_list = []
+
         folder_check(file)
 
         with open(file, 'w', encoding='utf-8', newline='') as info_file:
@@ -223,7 +229,9 @@ class TopicModeling:
                     if self.word_filter(pos_tags, filter_type, filter_list):
                         csv_writer_info.writerow([topic, phrase, prob, pos_tags])
 
-    def create_csv_topics_simple_h(self, file: str, filter_type: str = 'none', filter_list: list = []):
+    def create_csv_topics_simple_h(self, file: str, filter_type: str = 'none', filter_list: list = None):
+        if filter_list is None:
+            filter_list = []
         folder_check(file)
 
         with open(file, 'w', encoding='utf-8', newline='') as info_file:
@@ -269,7 +277,6 @@ class TopicModeling:
 
         return new_docs
 
-
     @staticmethod
     def word_filter(pos_tags, filter_type: str, filter_list: list) -> bool:
         if filter_type == 'none':
@@ -294,8 +301,22 @@ class TopicModeling:
     def zip_texts(docs: list[str], result: list[[int], [float]]) -> list[(str, int, float)]:
         return list(zip(docs, result[0], result[1]))
 
+    def update_stopwords(self):
+        english_stopwords = stopwords.words("english")
+        russian_stopwords = stopwords.words("russian")
+        ukrainian_stopwords = stopwords.words("ukrainian")
+
+        self.stopwords = {'ru': russian_stopwords + self.custom_stopwords['ru'],
+                          'uk': ukrainian_stopwords + self.custom_stopwords['uk'],
+                          'en': english_stopwords + self.custom_stopwords['en'],
+                          'all': russian_stopwords + ukrainian_stopwords  # TODO stopwords for all lang
+                          }
+
     def full_pipeline(self, file: str, langs: list[str], output_folder: str,
-                      filter_type: str = 'none', filter_list: list = [], preprocess: bool = False):
+                      filter_type: str = 'none', filter_list: list = None, preprocess: bool = False):
+        if filter_list is None:
+            filter_list = []
+
         file_base = os.path.splitext(os.path.basename(file))[0]
 
         self.prepare_csv(file)
