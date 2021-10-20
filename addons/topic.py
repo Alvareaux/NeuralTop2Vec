@@ -49,8 +49,10 @@ class BERTopicEngine(i_topic.TopicEngine):
 
     # Vectorizer
     stop_words = []
-    max_df = 1.0  # 1.0
-    min_df = 1  # 1
+    # max_df is used for removing terms that appear too frequently, also known as "corpus-specific stop words"
+    max_df = 0.7  # 1.0
+    # min_df is used for removing terms that appear too infrequently
+    min_df = 0.2  # 1
 
     # Embedding
     embedding_model_name = None
