@@ -4,7 +4,9 @@
 import modeling
 
 if __name__ == '__main__':
-    topic = modeling.TopicModeling()
+    csv_text_col = (18, 24)
+
+    topic = modeling.TopicModeling(csv_text_col)
 
     topic.custom_stopwords['ru'].extend(['это', 'й', 'также', 'на', 'это', ''])
     topic.custom_stopwords['uk'].extend(['із', 'не', 'на', 'що', 'за', 'до', 'це', 'про', 'та'])
@@ -44,6 +46,6 @@ if __name__ == '__main__':
 #    topic.create_csv_topics_simple('result/1/simple.csv')
 #    topic.merge_csv(['result/1/texts.csv', 'result/1/topics.csv', 'result/1/simple.csv'], 'result/1.xlsx')
 
-    for i in ['ze.csv']:
+    for i in ['data.csv']:
         topic.full_pipeline(f'data/{i}', ['ru', 'uk'], 'result',
                             preprocess=True)
