@@ -32,7 +32,7 @@ class ProceedDB:
             result = self.__model.fit_model(docs, model_path)
 
         else:
-            result = self.__model.load_model(model_path )
+            result = self.__model.load_model(model_path)
 
         docs_rating = self.zip_texts(docs, result)
         topics_info = self.__model.get_topics()

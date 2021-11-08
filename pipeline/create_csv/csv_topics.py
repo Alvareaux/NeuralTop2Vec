@@ -6,8 +6,9 @@ import csv
 import collections
 
 # Modules
-import addons.files
+from local.pos import localize_pos
 
+import addons.files
 import addons.word_filter
 
 import addons.db.db_texts
@@ -29,30 +30,33 @@ class CsvTopics:
 
         with open(file, 'w', encoding='utf-8', newline='') as topics_file:
             csv_writer = csv.writer(topics_file, delimiter=';')
-            csv_writer.writerow(['topic', 'word', 'mentions', 'POS'])
+            #csv_writer.writerow(['topic', 'word', 'mentions', 'POS'])
+            csv_writer.writerow(['Тема', 'Слова', 'Упоминаний', 'Часть речи'])
 
             for doc_line in result['docs_rating']:
                 text = doc_line[0]
                 topic = doc_line[1]
 
-                words_check = collections.Counter()
+                if topic != -1:
 
-                text = text.split(' ')
+                    words_check = collections.Counter()
 
-                for word in text:
-                    if word not in self.stopwords[lang]:
-                        words_check[word] += 1
+                    text = text.split(' ')
 
-                grams = [text[i:i + self.N] for i in range(len(text) - self.N + 1)]
-                for gram in grams:
-                    words_check[' '.join(gram)] += 1
+                    for word in text:
+                        if word not in self.stopwords[lang]:
+                            words_check[word] += 1
 
-                word_list = collections.Counter(e for e in words_check.elements() if words_check[e] >= self.word_lim)
+                    grams = [text[i:i + self.N] for i in range(len(text) - self.N + 1)]
+                    for gram in grams:
+                        words_check[' '.join(gram)] += 1
 
-                for pair in word_list.most_common():
-                    phrase = pair[0]
-                    mentions = pair[1]
-                    pos_tags = self.morph.get_pos(phrase)
+                    word_list = collections.Counter(e for e in words_check.elements() if words_check[e] >= self.word_lim)
 
-                    if addons.word_filter.word_filter(pos_tags, filter_type, filter_list):
-                        csv_writer.writerow([topic, phrase, mentions, pos_tags])
+                    for pair in word_list.most_common():
+                        phrase = pair[0]
+                        mentions = pair[1]
+                        pos_tags = self.morph.get_pos(phrase)
+
+                        if addons.word_filter.word_filter(pos_tags, filter_type, filter_list):
+                            csv_writer.writerow([topic, phrase, mentions, localize_pos(pos_tags)])

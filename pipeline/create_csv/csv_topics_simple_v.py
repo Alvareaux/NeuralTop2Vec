@@ -5,8 +5,9 @@
 import csv
 
 # Modules
-import addons.files
+from local.pos import localize_pos
 
+import addons.files
 import addons.word_filter
 
 
@@ -28,20 +29,21 @@ class CsvTopicsSimpleV:
             csv_writer_info.writerow([' '] * (self.top_n_words + 1))
 
             for topic in result['topics_info']:
+                if topic != -1:
 
-                lines = ([int(topic)], [' '], [' '])
+                    lines = ([int(topic)], [' '], [' '])
 
-                for topic_info in result['topics_info'][topic]:
-                    phrase = topic_info[0]
-                    prob = topic_info[1]
-                    pos_tags = self.morph.get_pos(phrase)
+                    for topic_info in result['topics_info'][topic]:
+                        phrase = topic_info[0]
+                        prob = topic_info[1]
+                        pos_tags = self.morph.get_pos(phrase)
 
-                    if addons.word_filter.word_filter(pos_tags, filter_type, filter_list):
-                        lines[0].append(phrase)
-                        lines[1].append(prob)
-                        lines[2].append(pos_tags)
+                        if addons.word_filter.word_filter(pos_tags, filter_type, filter_list):
+                            lines[0].append(phrase)
+                            lines[1].append(prob)
+                            lines[2].append(localize_pos(pos_tags))
 
-                for line in lines:
-                    csv_writer_info.writerow(line)
+                    for line in lines:
+                        csv_writer_info.writerow(line)
 
-                csv_writer_info.writerow([''])
+                    csv_writer_info.writerow([''])

@@ -46,6 +46,8 @@ if __name__ == '__main__':
 #    topic.create_csv_topics_simple('result/1/simple.csv')
 #    topic.merge_csv(['result/1/texts.csv', 'result/1/topics.csv', 'result/1/simple.csv'], 'result/1.xlsx')
 
-    for i in ['data.csv']:
+    for i in ['publications_07.11.2021-21_53_39.csv', 'publications_07.11.2021-19_29_47.csv']:
         topic.full_pipeline(f'data/{i}', ['ru', 'uk'], 'result',
+                            filter_list=filter_list, filter_type=filter_type,
+                            if_exist=True,
                             preprocess=True)
