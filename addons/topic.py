@@ -50,7 +50,7 @@ class BERTopicEngine(i_topic.TopicEngine):
     # Vectorizer
     stop_words = []
     # max_df is used for removing terms that appear too frequently, also known as "corpus-specific stop words"
-    max_df = 0.7  # 1.0
+    max_df = 1.0  # 1.0
     # min_df is used for removing terms that appear too infrequently
     min_df = 0.2  # 1
 
@@ -133,6 +133,12 @@ class BERTopicEngine(i_topic.TopicEngine):
     def visualize_heatmap(self):
         return self.model.visualize_heatmap()
 
+    def visualize_barchart(self):
+        return self.model.visualize_barchart()
+
+    def visualize_hierarchy(self):
+        return self.model.visualize_hierarchy(width=2400, height=1920)
+
     def create_vectorizer(self):
         self.vectorizer_model = CountVectorizer(ngram_range=self.n_gram_range,
                                                 stop_words=self.stop_words,
@@ -181,5 +187,4 @@ class BERTopicEngine(i_topic.TopicEngine):
                               seed_topic_list=self.seed_topic_list,
 
                               verbose=self.verbose,
-
                               )
